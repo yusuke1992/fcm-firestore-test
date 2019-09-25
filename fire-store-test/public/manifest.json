@@ -1,0 +1,9 @@
+{  
+    "name":"PWA Sample",
+    "short_name":"PWA",
+    "start_url":"./",
+    "orientation":"any",
+    "display":"standalone",
+    "background_color":"#fff",
+    "gcm_sender_id":"103953800507"
+ }
