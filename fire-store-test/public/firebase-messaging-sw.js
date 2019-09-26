@@ -3,6 +3,8 @@ importScripts('/__/firebase/6.3.4/firebase-messaging.js');
 importScripts('/__/firebase/6.3.4/firebase-firestore.js');
 importScripts('/__/firebase/init.js');
 
+
+
 const cacheName = 'v1';
 const messaging = firebase.messaging();
 
@@ -12,7 +14,8 @@ self.addEventListener('install', event => {
             console.log("install");
             return cache.addAll([
                 './',
-                './app.js'
+                './app.js',
+                console.log("キャッシュ取得")
             ]).then(() => {
                 self.skipWaiting();
             });
@@ -38,6 +41,7 @@ self.addEventListener('fetch', event => {
 // アプリがバックグラウンドにある場合にプッシュ通知が届いた場合にログ出力
 // https://firebase.google.com/docs/cloud-messaging/js/receive?hl=ja
 messaging.setBackgroundMessageHandler(payload => {
+    console.log("通知きてるよ");
     console.log(payload);
     const title = 'Background Message Title';
     const options = {

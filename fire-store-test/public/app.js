@@ -13,22 +13,19 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 
-
-
-console.log("OK");
-
-var db = firebase.firestore();
-var colRef = db.collection("samples");
-var docRef = db.doc("samples/sandwichData");
+const db = firebase.firestore();
+const colRef = db.collection("samples");
+const docRef = db.doc("samples/sandwichData");
 
 const messaging = firebase.messaging();
 let uniqueFlag = false;
+let flagAllay = [];
 
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then(registration => {
         console.log(registration);
-        console.log("aaaa");
+        console.log("aaa");
         messaging.useServiceWorker(registration);
     }).catch(error => {
         console.error(error);
@@ -45,7 +42,8 @@ window.addEventListener('offline', e => {
 
 // アプリがフォアグラウンドにある場合にプッシュ通知が届いた場合にログ出力
 // https://firebase.google.com/docs/cloud-messaging/js/receive?hl=ja
-messaging.onMessage(payload => {
+messaging.onMessage(function(payload) {
+    console.log("ちーむらぼうえい");
     console.log(payload);
 });
 
@@ -54,41 +52,11 @@ messaging.onMessage(payload => {
 function requestPermission() {
     messaging.requestPermission().then(() => {
         messaging.getToken().then(token => {
-            alert(token);
-            colRef.get().then(function (col) {
-                console.log("OK");
-                console.log(col.docs);
-                for (let i = 0; i < col.docs.length; i++) {
-                    let docData = col.docs[i]._document.proto.fields.fcmToken.stringValue;
-                    console.log("document---" + docData);
-                    console.log("token---" + token);
-                    if (token != docData) {
-                        uniqueFlag = false;
-                        console.log(uniqueFlag);
-                    } else {
-                        uniqueFlag = true;
-                        console.log(uniqueFlag);
-                    }
-
-                }
-                // console.log(document);
-                if (uniqueFlag === false) {
-                    colRef.add({
-                        fcmToken: token
-                    }).then(function () {
-                        console.log("Status saved");
-                    }).catch(function (error) {
-                        console.log("Got an error:", error);
-                    })
-                } else {
-                    console.log("既にフラッグがあります。")
-                }
-
+            colRef.get().then(function (col) {    
+                checkDuplicatedToken(col, token)  
             }).catch(function (error) {
                 console.log("Got an error:", error);
             });
-            console.log(token);
-
         }).catch(error => {
             console.error(error);
         });
@@ -97,33 +65,78 @@ function requestPermission() {
     });
 }
 
+function trueOrFalse(element) {
+    return element === true;
+}
+
+function checkDuplicatedToken(col, token) {
+    for (let i = 0; i < col.docs.length; i++) {
+        let docData = col.docs[i]._document.proto.fields.fcmToken.stringValue;
+        if (token != docData) {
+            flagAllay.push(false);
+            console.log(flagAllay);
+        } else {
+            flagAllay.push(true);
+            console.log(flagAllay);
+        }
+    }
+    if (flagAllay.some(trueOrFalse)) {
+        console.log("既に重複するfcmTokenがあります。")
+        flagAllay.length = 0;
+    } else {
+        addToken(token);
+        flagAllay.length = 0;
+    }
+}
+
+function addToken(token) {
+    colRef.add({
+        fcmToken: token
+    }).then(function () {
+        console.log("Status saved");
+    }).catch(function (error) {
+        console.log("Got an error:", error);
+    })
+}
+
 const outputHeader = document.querySelector("#hotDogOutput");
-const inputTextField = document.querySelector("#latestHotDogStatus");
-const pushButton = document.querySelector("#loadButton");
+const inputMessageField = document.querySelector("#fcmMessageField");
+const inputLinkField = document.querySelector("#fcmLinkField");
+const pushButton = document.querySelector("#pushButton");
 
 
 //firestoreからfcmトークンを全件取得し、各トークンの値をfetchでhttps://fcm.googleapis.com/fcm/sendに送信
 pushButton.addEventListener("click", function () {
+    const fcmMessage = inputMessageField.value;
+    const fcmLink = inputLinkField.value;
     colRef.get().then(function (col) {
         for (let i = 0; i < col.docs.length; i++) {
             let docData = col.docs[i]._document.proto.fields.fcmToken.stringValue;
-            console.log("fcmToken---" + docData);
-            fetch("https://fcm.googleapis.com/fcm/send", {
-                method: "POST",
-                headers: {
-                    "Authorization": "key=AAAA9Mj0PLs:APA91bEBbRuMaytQPW-W3rb3TrgxZTCz07xdwHEGcJrewKxtANCtO3cg4_KET-dYs9-s9FBIM-dKzx0fU8e5GKtY78eE4v0Kxc63PgH_SscHpiXpvbAz9DXbJq-KHbW0MXfZ8sXEn5DU",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    to: docData,
-                    notification: { body: "Hello" },
-                    priority: 10
-                }),
-            }).then(function () {
-                console.log("push成功");
-            }).catch(function (error) {
-                console.log("Got an error:", error);
-            })
+            pushNotification(docData, fcmMessage, fcmLink);
         }
     });
 });
+
+function pushNotification(docData, fcmMessage, fcmLink) {
+    console.log("fcmToken---" + docData);
+        fetch("https://fcm.googleapis.com/fcm/send", {
+            method: "POST",
+            headers: {
+                "Authorization": "key=AAAA9Mj0PLs:APA91bEBbRuMaytQPW-W3rb3TrgxZTCz07xdwHEGcJrewKxtANCtO3cg4_KET-dYs9-s9FBIM-dKzx0fU8e5GKtY78eE4v0Kxc63PgH_SscHpiXpvbAz9DXbJq-KHbW0MXfZ8sXEn5DU",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                to: docData,
+                notification: { 
+                    body: fcmMessage,
+                    click_action: fcmLink,
+                 },
+                priority: 10,
+                
+            }),
+        }).then(function () {
+            console.log("push成功");
+        }).catch(function (error) {
+            console.log("Got an error:", error);
+        })
+}
