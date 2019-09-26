@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="index.css" type="text/css">
     <title>Welcome to Firebase Hosting</title>
   </head>
 
@@ -12,12 +13,85 @@
       <script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-firestore.js"></script>
       <script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-messaging.js"></script> 
       <script defer src="/__/firebase/init.js"></script>    
+      <div class="header">
+        <p id="hotDogOutput">push通知配信デモ</p>
+      </div>
       
-      <h1 id="hotDogOutput">Hot dog status:</h1>
-      <input type="textfield" id="latestHotDogStatus">
-      <button onclick="requestPermission()">Request Permission</button>
-      <button id="saveButton">Save</button>
-      <button id="loadButton">Push</button>
+      <input type="textarea" rows="10" cols="60" id="fcmMessageField" placeholder="push通知のメッセージを入力してください">
+      <input type="textarea" rows="10" cols="60" id="fcmLinkField" placeholder="https://room-bff-stg3-cf.skyl-rs-tlb.com/lp/">
+      <button id="requestButton"　onclick="requestPermission()">Permission</button>
+      <button id="pushButton">Push !</button>
       <script src="./app.js"></script>
   </body>
+
+  <style>
+    body {
+        background-color: #f6f7f9;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header {
+      height: 50px;
+      width: 100%;
+      background-color: #2e3a4d;
+      display: flex;
+      align-items: center;
+      flex-direction: center;
+
+    }
+
+    #hotDogOutput{
+      color: white;
+      margin-left: 30px;
+    }
+
+    #fcmMessageField {
+      box-sizing: border-box;
+      margin: 20px;
+      width: 300px;
+      height: 100px;
+      border: none;
+      border-radius: 5px;
+      font-size: 12px;
+      padding: 10px;
+      box-shadow: 0.5px 3px 1.5px 0.1px rgb(202, 202, 202);
+    }
+    #fcmLinkField {
+      box-sizing: border-box;
+      margin: 20px;
+      width: 300px;
+      height: 50px;
+      border: none;
+      border-radius: 5px;
+      font-size: 12px;
+      padding: 10px;
+      box-shadow: 0.5px 3px 1.5px 0.1px rgb(202, 202, 202);
+    }
+
+    #requestButton {
+      border-radius: 50%;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      margin: 20px;
+      border: none;
+      width: 100px;
+      height: 100px;
+      background-color: #ef6c00;
+      box-shadow: 0.5px 3px 1.5px 0.1px rgb(202, 202, 202);
+    }
+    #pushButton {
+      border-radius: 50%;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      margin: 20px;
+      border: none;
+      width: 100px;
+      height: 100px;
+      background-color: #23b6c9;
+      box-shadow: 0.5px 3px 1.5px 0.1px rgb(202, 202, 202);
+    }
+</style>
 </html>
